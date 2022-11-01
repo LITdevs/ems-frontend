@@ -1,0 +1,58 @@
+<%-include("./common/head.ejs", { restrictNav: true })%>
+<div class="login">
+    <table class="">
+        <tr>
+            <td>
+                <img src="/assets/ems.svg" width="256"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <form id="loginForm">
+                    <input type="email" name="email" placeholder="E-mail address" class="input-box" required/><br>
+                    <input type="password" name="password" placeholder="Password" class="input-box" required/>
+                    <div class="login">
+                        <input type="submit" value="Log in" class="btn">
+                    </div>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="login">
+                    <p class="text-red-5 font-bold" id="login-error"></p>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<script>
+
+    document.getElementById("loginForm").onsubmit = (e) => {
+        e.preventDefault()
+        fetch("https://ems-api.litdevs.org/v1/auth/token", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: document.querySelector("input[name='email']").value,
+                password: document.querySelector("input[name='password']").value
+            })
+        }).then(res => res.json()).then(res => {
+            if (!res?.request?.status_code) return alert("Unexpected server response\nEmail contact@litdevs.org")
+            if (res.request.status_code === 502) return alert("Server unreachable. Try again later.");
+            switch (res.request.status_code) {
+                case 200:
+                    setCookie("EMS-token", res.response.access_token, 1);
+                    window.location.reload();
+                    break;
+                default:
+                    if (!res?.response?.message) return alert("Unexpected server response\nEmail contact@litdevs.org")
+                    document.getElementById("login-error").textContent = res.response.message;
+                    break;
+            }
+        })
+    }
+</script>
+<%-include("./common/bottom.ejs")%>

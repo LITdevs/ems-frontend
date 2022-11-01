@@ -1,0 +1,58 @@
+<div class="nav" <% if (restrictNav) { %> style="width: 50px" <% } %>>
+    <i class="fa-solid fa-bars text-2xl text-gray-3 mb-2 cursor-pointer hover:bg-gray-7 p-1 rounded-md" <% if (!restrictNav) { %> onclick="toggleNav()"<% } %>></i>
+    <% if (!restrictNav) { %>
+    <div>
+        <div class="nav-entry">
+            <span class="font-bold">Overview</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </div>
+        <div class="nav-entry">
+            <span class="font-bold">Services</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </div>
+        <div class="nav-entry">
+            <span class="font-bold">DNS</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </div>
+        <div class="nav-entry">
+            <span class="font-bold">Nginx</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </div>
+        <a href="https://ssh.litdevs.org">
+            <div class="nav-entry">
+                <span class="font-bold">SSH</span>
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </div>
+        </a>
+    </div>
+    <div class="logout">
+        <div class="nav-entry" onclick="logout()">
+            <span class="font-bold">Log out</span>
+            <i class="fa-solid fa-right-from-bracket"></i>
+        </div>
+    </div>
+    <% } %>
+</div>
+<% if (!restrictNav) { %>
+<script>
+
+    let closed = false
+    function toggleNav() {
+        document.querySelectorAll('.nav-entry').forEach(el => {
+            el.classList.toggle("nav-entry-transparent")
+            setTimeout(() => {
+                el.classList.toggle("nav-entry-hidden")
+            }, 100)
+        })
+        setTimeout(() => {
+            document.querySelector(".nav").style.width = closed ? "" : "50px";
+            closed = !closed;
+        }, 100)
+    }
+
+    function logout() {
+        setCookie("EMS-token", "", 0)
+        window.location.reload();
+    }
+</script>
+<% } %>

@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+    height: 100%;
+    @apply bg-gray-8 text-gray-1;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.content {
+    flex: 1 0 auto;
+    @apply ml-2 mt-2;
+}
+
+.nav {
+    @apply border-r bg-[#31363b] border-gray-6 shadow-lg flex-col left-0 pr-2 w-full max-w-sm p-2 justify-between relative transition-all duration-300 ease-in-out;
+}
+
+.container {
+    flex: 1 0 auto;
+    @apply flex flex-row min-w-full;
+}
+
+.nav-entry {
+    @apply select-none w-full flex flex-row items-center p-2 hover:bg-gray-7 rounded-md transition-colors duration-100 my-1 justify-between cursor-pointer transition-opacity duration-100 ease-in-out;
+}
+
+.nav-entry-hidden {
+    @apply hidden !important;
+}
+
+.nav-entry-transparent {
+    @apply opacity-0;
+}
+
+.logout {
+    @apply text-red-5 absolute bottom-0 left-0 px-2 w-full;
+}
+
+.login {
+    @apply w-full flex justify-center;
+}
+
+.input-box {
+    @apply p-1 rounded-md border border-gray-6 bg-gray-7 text-gray-1 w-full my-2 outline-none focus:border-gray-5;
+}
+
+.btn {
+    @apply bg-pink-5 text-gray-1 rounded-sm p-2 px-3 my-2 cursor-pointer hover:bg-pink-6 transition-colors duration-100;
+}
+
+.service-card {
+    @apply bg-gray-9 rounded-md p-5 my-2 w-2/5 max-w-sm shadow-md;
+}
+
+.status-text {
+    @apply align-middle;
+}
+
+.status-dot {
+    @apply w-2 h-2 rounded-full mr-1 inline-block;
+}
+
+.status-dot-gray {
+    @apply status-dot;
+    @apply bg-gray-5;
+}
+
+.status-dot-yellow {
+    @apply status-dot;
+    @apply bg-yellow-6;
+}
+
+.status-dot-green {
+    @apply status-dot;
+    @apply bg-green-8;
+}
+
+.status-dot-red {
+    @apply status-dot;
+    @apply bg-red-7;
+}

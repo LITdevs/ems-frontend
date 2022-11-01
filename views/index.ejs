@@ -1,0 +1,19 @@
+<%-include("./common/head.ejs")%>
+        <div class="service-card atm-card">
+                <table>
+                        <tr>
+                                <td>
+                                        <span class="font-bold text-gray-0">ATM7 Server</span>
+                                        <div class="block">
+                                                <div class="atm-status-dot status-dot status-dot-gray"></div><span class="status-text atm-status">Unknown</span>
+                                        </div>
+                                </td>
+                                <td>
+                                        <i class="fa-solid fa-power-off p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8" title="On/Off" onclick="atm7power(false)"></i>
+                                        <i class="fa-solid fa-plug-circle-exclamation p-2 rounded-md cursor-pointer hover:bg-gray-8" title="Force shutdown" onclick="atm7power(true)"></i>
+                                </td>
+                        </tr>
+                </table>
+                <script src="/js/atm.js"></script>
+        </div>
+<%-include("./common/bottom.ejs")%>
