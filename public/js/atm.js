@@ -18,6 +18,11 @@ function atm7status() {
                     break;
                 case "failed":
                     atm7_power = false;
+                    onlineState = "Crashed";
+                    onlineStateColor = "yellow";
+                    break;
+                case "dead":
+                    atm7_power = false;
                     onlineState = "Offline";
                     onlineStateColor = "red";
                     break;
