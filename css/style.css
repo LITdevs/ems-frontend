@@ -54,6 +54,16 @@ body {
     @apply bg-pink-5 text-gray-1 rounded-sm p-2 px-3 my-2 cursor-pointer hover:bg-pink-6 transition-colors duration-100;
 }
 
+.form-btn {
+    @apply btn;
+    @apply my-5 !important;
+}
+
+.form-btn-green {
+    @apply form-btn;
+    @apply bg-green-5 hover:bg-green-7 !important;
+}
+
 .service-card {
     @apply bg-gray-9 rounded-md p-5 my-2 w-2/5 max-w-sm shadow-md;
 }
@@ -84,4 +94,31 @@ body {
 .status-dot-red {
     @apply status-dot;
     @apply bg-red-7;
+}
+
+.form-input {
+    @apply input-box;
+    @apply w-72 !important;
+}
+
+.form-input-wide {
+    @apply form-input;
+    @apply w-96 !important;
+}
+
+.card {
+    @apply bg-gray-8.5 p-2 m-2 rounded-md w-full max-w-screen-lg justify-center;
+}
+
+.spin {
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }

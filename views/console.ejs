@@ -1,0 +1,24 @@
+<%-include("./common/head.ejs")%>
+<div class="flex justify-center">
+    <div class="bg-gray-8.5 p-2 m-2 rounded-md w-full max-w-screen-lg justify-center">
+        <span class="font-bold text-gray-0">Deployment console</span>
+        <div class="bg-gray-9 p-2 m-2 font-mono rounded-sm h-72 overflow-hidden" id="console"></div>
+    </div>
+</div>
+<script src="/js/console.js"></script>
+<script>
+    wss.addEventListener("message", msg => {
+        let msgObject
+        try {
+            msgObject = JSON.parse(msg.data);
+            msgObject.color = "text-gray-0";
+            if (msgObject.event.includes("error")) msgObject.color = "text-red-5";
+        } catch {
+            msgObject = {message: msg.data}
+            msgObject.name = "unknown"
+            msgObject.color = "text-gray-0";
+        }
+        Econsole.innerHTML = `<span class="${msgObject.color}">[${new Date().toLocaleTimeString()}] ${msgObject.name}: ${msgObject.message}</span><br>${Econsole.innerHTML}`
+    })
+</script>
+<%-include("./common/bottom.ejs")%>

@@ -2,22 +2,28 @@
     <i class="fa-solid fa-bars text-2xl text-gray-3 mb-2 cursor-pointer hover:bg-gray-7 p-1 rounded-md" <% if (!restrictNav) { %> onclick="toggleNav()"<% } %>></i>
     <% if (!restrictNav) { %>
     <div>
-        <div class="nav-entry">
+        <a href="/"><div class="nav-entry">
             <span class="font-bold">Overview</span>
             <i class="fa-solid fa-chevron-right"></i>
-        </div>
-        <div class="nav-entry">
+        </div></a>
+        <a href="/deploy"><div class="nav-entry">
+            <span class="font-bold">Deployment console [BETA]</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </div></a>
+        <a href="/"><div class="nav-entry">
             <span class="font-bold">Services</span>
             <i class="fa-solid fa-chevron-right"></i>
-        </div>
-        <div class="nav-entry">
-            <span class="font-bold">DNS</span>
-            <i class="fa-solid fa-chevron-right"></i>
-        </div>
-        <div class="nav-entry">
-            <span class="font-bold">Nginx</span>
-            <i class="fa-solid fa-chevron-right"></i>
-        </div>
+        </div></a>
+        <a href="https://dash.cloudflare.com"><div class="nav-entry">
+            <span class="font-bold">DNS [Unimplemented]</span>
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            <!--<i class="fa-solid fa-chevron-right"></i>-->
+        </div></a>
+        <a href="https://ssh.litdevs.org"><div class="nav-entry">
+            <span class="font-bold">Nginx [Unimplemented]</span>
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            <!--<i class="fa-solid fa-chevron-right"></i>-->
+        </div></a>
         <a href="https://ssh.litdevs.org">
             <div class="nav-entry">
                 <span class="font-bold">SSH</span>

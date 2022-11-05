@@ -1,6 +1,18 @@
 <%-include("./common/head.ejs")%>
+<div>
+        <a href="/deploy/new">
+                <div class="service-card cursor-pointer hover:bg-gray-7 transition-all select-none">
+                        <table class="w-full">
+                                <tr>
+                                        <td class="align-middle">
+                                                <i class="fa-solid fa-plus text-2xl align-middle"></i><span class="font-bold text-gray-0 align-middle"> Deploy new</span>
+                                        </td>
+                                </tr>
+                        </table>
+                </div>
+        </a>
         <div class="service-card atm-card">
-                <table>
+                <table class="w-full">
                         <tr>
                                 <td>
                                         <span class="font-bold text-gray-0">ATM7 Server</span>
@@ -8,7 +20,7 @@
                                                 <div class="atm-status-dot status-dot status-dot-gray"></div><span class="status-text atm-status">Unknown</span>
                                         </div>
                                 </td>
-                                <td>
+                                <td class="float-right">
                                         <i class="fa-solid fa-power-off p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8" title="On/Off" onclick="atm7power(false)"></i>
                                         <i class="fa-solid fa-plug-circle-exclamation p-2 rounded-md cursor-pointer hover:bg-gray-8" title="Force shutdown" onclick="atm7power(true)"></i>
                                 </td>
@@ -16,4 +28,28 @@
                 </table>
                 <script src="/js/atm.js"></script>
         </div>
+        <div class="service-card funserver-card">
+                <table class="w-full">
+                        <tr>
+                                <td>
+                                        <span class="font-bold text-gray-0">sharkys server of fun times and *crash*</span>
+                                        <div class="block">
+                                                <div class="funserver-status-dot status-dot status-dot-gray"></div><span class="status-text funserver-status">Unknown</span>
+                                        </div>
+                                </td>
+                                <td class="float-right">
+                                        <i class="fa-solid fa-power-off p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8" title="On/Off" onclick="funserverpower(false)"></i>
+                                </td>
+                        </tr>
+                </table>
+                <script src="/js/funserver.js"></script>
+        </div>
+        <script src="/js/pm2.js"></script>
+        <%
+        processes.forEach(process => {
+                process;%><%-include("common/process-card.ejs", {process})%><%
+        })
+        %>
+</div>
+
 <%-include("./common/bottom.ejs")%>

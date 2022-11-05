@@ -1,0 +1,254 @@
+<%-include("./common/head.ejs")%>
+<div class="flex justify-center">
+        <div class="card" id="setupStep">
+            <span class="font-bold text-gray-0">Deployment settings</span><br><br>
+            <form id="deployForm">
+                <label>
+                    Display name:
+                    <input type="text" class="form-input" oninput="document.getElementById('realName').innerHTML = this.value.toLowerCase().replace(/ /gm, '-').replace(/[^a-zA-Z0-9-]/gm, '');" name="displayName" placeholder="ems-backend" required>
+                </label><br>
+                <span>Internal name: <span id="realName"></span></span><br>
+                <label>
+                    Run command:
+                    <input type="text" class="form-input" name="runCommand" placeholder="index.js | npm run dev" required>
+                </label><br>
+                <label>
+                    Default port:
+                    <input type="number" min="1" class="form-input" name="defaultPort" placeholder="1337" required>
+                </label><br>
+                <label>
+                    Port environment variable:
+                    <input type="text" class="form-input" name="portEnv" placeholder="EMS_API_PORT (optional)">
+                </label><br>
+                <label>
+                    Package manager:
+                    <input type="text" class="form-input" name="pacman" placeholder="yarn | npm" required>
+                </label><br>
+                <label>
+                    Icon <small class="underline decoration-dotted cursor-pointer" onclick="alert('Enter an image url, or path to a file on the Eye')">(help!!)</small>:
+                    <input type="text" class="form-input" name="icon" placeholder="/litdevs/ems-internal/logo.png" required>
+                </label><br>
+                <label>
+                    Deployment path <small class="underline decoration-dotted cursor-pointer" onclick="alert('Enter the url to a git repo, or path to a directory on the Eye')">(help!!)</small>:
+                    <input type="text" class="form-input-wide" name="deployPath" placeholder="https://github.com/litdevs/ems-backend" required>
+                </label><br>
+                <label>
+                    Deployment type
+                    <select name="deployType" class="form-input">
+                        <option>local</option>
+                        <option selected>git</option>
+                    </select>
+                </label><br><br>
+                <a class="form-btn" onclick="envEditor()">Configure environment</a>
+                <br>
+                <input type="submit" class="form-btn-green">
+            </form>
+
+        </div>
+        <div class="card hidden" id="envStep">
+            <span class="font-bold text-gray-0">Environment configuration</span><br>
+            <span>Warning: All inputs get cleared when adding more rows. I don't know why so just letting you know</span><br><br>
+            <table class="bg-gray-8 rounded-md p-2 table border-collapse border-gray-600 border text-center" id="envTable">
+                <tr class="bg-gray-7">
+                    <td class="p-2 border border-gray-600">
+                        Key
+                    </td>
+                    <td class="p-2 border border-gray-600">
+                        Value
+                    </td>
+                    <td class="p-2 border border-gray-600">
+                        Optional
+                    </td>
+                    <td class="p-2 border border-gray-600">
+                        Delete
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <span class="m-2 p-2 hover:bg-gray-8 rounded-md cursor-pointer" onclick="addRow()">Add row <i class="fa-solid fa-plus"></i></span>
+            <script>
+                let env = []
+                let curRow = 0
+                let usedRows = []
+                function addRow() {
+                    curRow++
+                    usedRows.push(curRow)
+                    document.getElementById("envTable").innerHTML += `<tr id="env_row_${curRow}">
+                    <td class="p-2 border border-gray-600">
+                        <input type="text" name="env_key_${curRow}" class="env_key form-input" placeholder="Key">
+                    </td>
+                    <td class="p-2 border border-gray-600">
+                        <input type="text" name="env_value_${curRow}" class="env_value form-input" placeholder="Value">
+                    </td>
+                    <td class="p-2 border border-gray-600">
+                        <input type="checkbox" name="env_optional_${curRow}" class="env_optional mx-auto">
+                    </td>
+                    <td class="p-2 border border-gray-600">
+                        <i class="fa-solid fa-minus m-2 p-2 rounded-md hover:bg-gray-7" onclick="removeRow(${curRow})"></i>
+                    </td>
+                </tr>`
+                }
+                addRow();
+                addRow();
+                addRow();
+                addRow();
+                addRow();
+
+                function removeRow(id) {
+                    document.getElementById(`env_row_${id}`).remove();
+                    usedRows.splice(usedRows.indexOf(id), 1);
+                }
+
+                function saveEnv() {
+                    env = [];
+                    usedRows.forEach(rowId => {
+                        // Get row and add entry to env
+                        let rowValue = document.querySelector(`input[name="env_value_${rowId}"]`).value
+                        let rowKey = document.querySelector(`input[name="env_key_${rowId}"]`).value
+                        let rowOptional = document.querySelector(`input[name="env_optional_${rowId}"]`).checked
+
+                        if (!rowKey) return; // Key must be present
+                        if (!rowOptional && !rowValue) return; // Value must be present only if it's not optional (wow)
+                        env.push({
+                            optional: rowOptional,
+                            key: rowKey,
+                            value: rowValue
+                        })
+                    })
+                }
+
+            </script>
+            <br><br><a class="form-btn-green" onclick="envEditor();saveEnv()">Back</a><br><br>
+        </div>
+        <div class="card hidden" id="deploymentStep">
+            <span class="font-bold text-gray-0">Deployment</span>
+            <br><br>
+            <div class="text-3xl select-none flex justify-center">
+                <i class="fa-regular fa-circle ml-2 existing_check"></i>
+                <i class="fa-regular fa-circle ml-2 file_get"></i>
+                <i class="fa-regular fa-circle ml-2 git_check"></i>
+                <i class="fa-regular fa-circle ml-2 env_file"></i>
+                <i class="fa-regular fa-circle ml-2 dependency_install"></i>
+                <i class="fa-regular fa-circle ml-2 pm2"></i>
+                <i class="fa-regular fa-circle ml-2 save_definition"></i>
+                <!--<i class="fa-solid fa-circle-notch ml-2 spin"></i><i class="fa-solid fa-circle-xmark ml-2 text-red-5"></i></i><i class="fa-solid fa-circle-exclamation ml-2 text-red-5"></i><i class="fa-solid fa-circle-check ml-2 text-green-5"></i>-->
+            </div>
+            <br>
+            <div class="bg-gray-9 p-2 m-2 font-mono rounded-sm h-72 overflow-hidden" id="console"></div>
+        </div>
+</div>
+<script src="/js/console.js"></script>
+<script>
+    document.getElementById("deployForm").addEventListener("submit", deploy);
+
+    function deploy(e) {
+        e.preventDefault();
+        nameFilter = document.getElementById("realName").innerHTML;
+        document.getElementById("setupStep").classList.add("hidden");
+        document.getElementById("envStep").classList.add("hidden");
+        document.getElementById("deploymentStep").classList.remove("hidden");
+
+        let appDefinition = {
+            displayName: document.querySelector("input[name='displayName']").value,
+            runCommand: document.querySelector("input[name='runCommand']").value,
+            defaultPort: document.querySelector("input[name='defaultPort']").value,
+            portEnv: document.querySelector("input[name='portEnv']").value,
+            env: env,
+            icon: document.querySelector("input[name='icon']").value,
+            pacman: document.querySelector("input[name='pacman']").value,
+            deployType: document.querySelector("select[name='deployType']").value,
+            deployPath: document.querySelector("input[name='deployPath']").value
+        }
+
+        fetch("https://ems-api.litdevs.org/v1/pm2/deploy", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${getCookie("EMS-token")}`
+            },
+            body: JSON.stringify(appDefinition)
+        }).catch(res => {
+            let msgObject = {
+                color: "text-red-5",
+                name: nameFilter,
+                message: res
+            }
+            Econsole.innerHTML = `<span class="${msgObject.color}">[${new Date().toLocaleTimeString()}] ${msgObject.name}: ${msgObject.message}</span><br>${Econsole.innerHTML}`;
+        });
+    }
+
+    function envEditor() {
+        document.getElementById("setupStep").classList.toggle("hidden");
+        document.getElementById("envStep").classList.toggle("hidden");
+    }
+
+    let nameFilter;
+    let currentStage = "existing_check";
+    wss.addEventListener("message", msg => {
+        if (msg.data === "pong") return;
+        let msgObject;
+        try {
+            msgObject = JSON.parse(msg.data);
+            msgObject.color = "text-gray-0";
+            if (msgObject.event.startsWith("deploy_")) {
+                // deploy_existing_check_start
+                let eventName = msgObject.event.split("deploy_")[1]
+                // existing_check_start
+                let eventType;
+                if (eventName.endsWith("_start")) eventType = "start";
+                if (eventName.endsWith("_update")) eventType = "update";
+                if (eventName.endsWith("_end")) eventType = "end";
+                // start
+                eventName = eventName.split(`_${eventType}`)[0]
+                // existing_check
+
+                let statusCircle = document.querySelector(`.${eventName}`)
+                switch (eventType) {
+                    case "start":
+                        statusCircle.classList.replace("fa-regular", "fa-solid");
+                        statusCircle.classList.replace("fa-circle", "fa-circle-notch");
+                        statusCircle.classList.add("spin");
+                        currentStage = eventName;
+                        break;
+                    case "update":
+                        break;
+                    case "end":
+                        statusCircle.classList.replace("fa-circle-notch", "fa-circle-check");
+                        statusCircle.classList.remove("spin");
+                        statusCircle.classList.add("text-green-5");
+                }
+            }
+            if (msgObject.event.includes("error")) {
+                msgObject.color = "text-red-5";
+                let statusCircle = document.querySelector(`.${currentStage}`)
+                statusCircle.classList.remove("spin")
+                statusCircle.classList.replace("fa-regular", "fa-solid");
+                statusCircle.classList.replace("fa-circle", "fa-circle-notch");
+                statusCircle.classList.replace("fa-circle-notch", "fa-circle-check");
+                statusCircle.classList.remove("text-green-5")
+                statusCircle.classList.add("text-red-5")
+                // Handle error message, ERR_USER_FAULt for X, Internal error for !
+                if (msgObject.message.startsWith("ERR_USER_FAULT")) {
+                    statusCircle.classList.replace("fa-circle-check", "fa-circle-xmark");
+                } else {
+                    statusCircle.classList.replace("fa-circle-check", "fa-circle-exclamation");
+                }
+            }
+
+        } catch (e) {
+            console.log(e)
+            msgObject = {message: msg.data}
+            msgObject.name = "unknown"
+            msgObject.color = "text-gray-0";
+        }
+        if ((nameFilter && nameFilter === msgObject.name) || !nameFilter) {
+            if (msgObject.message.includes("successful")) msgObject.color = "text-green-5";
+            Econsole.innerHTML = `<span class="${msgObject.color}">[${new Date().toLocaleTimeString()}] ${msgObject.name}: ${msgObject.message}</span><br>${Econsole.innerHTML}`;
+        }
+    })
+
+    setInterval(() => {
+        wss.send("ping");
+    }, 10000)
+</script>
+<%-include("./common/bottom.ejs")%>
