@@ -1,0 +1,74 @@
+<%-include("./common/head.ejs")%>
+<button class="btn" onclick="newSecret(prompt('Enter name for secret'), prompt('Enter secret (Will be AES256 encrypted)'))">Add</button>
+<div class="flex flex-wrap max-w-screen-md login">
+    <%
+        secrets.forEach(secret => {
+            secret;%><%-include("common/secretCard.ejs", { secret })%><%
+        })
+    %>
+    <script>
+        function reveal(key) {
+            fetch(`https://ems-api.litdevs.org/v1/ass/get/${key}`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${getCookie("EMS-token")}`
+                }
+            }).then(res => res.json()).then(res => {
+                document.querySelector(`#input_${key.replace(/[^a-zA-Z0-9-]/gm, "-")}`).value = res.response.data;
+            })
+        }
+
+        function del(key) {
+            if(!confirm("Are you sure you want to delete this secret?\nThe other lite devs may be very angwy if this is important :(")) return;
+            fetch(`https://ems-api.litdevs.org/v1/ass/delete/${key}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${getCookie("EMS-token")}`
+                }
+            }).then(res => res.json()).then(res => {
+                window.location.reload();
+            })
+        }
+
+        function edit(key) {
+            reveal(key);
+            document.querySelector(`#input_${key.replace(/[^a-zA-Z0-9-]/gm, "-")}`).readOnly = false;
+            document.querySelector(`#input_${key.replace(/[^a-zA-Z0-9-]/gm, "-")}`).focus();
+            document.querySelector(`#save_${key.replace(/[^a-zA-Z0-9-]/gm, "-")}`).classList.remove("hiddenpls");
+        }
+
+        function save(key) {
+            fetch(`https://ems-api.litdevs.org/v1/ass/set/${key}`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${getCookie("EMS-token")}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    value: document.querySelector(`#input_${key.replace(/[^a-zA-Z0-9-]/gm, "-")}`).value
+                })
+            }).then(res => res.json()).then(res => {
+                document.querySelector(`#input_${key.replace(/[^a-zA-Z0-9-]/gm, "-")}`).value = res.response.data.replace(/[^*]/gm, "*");
+                document.querySelector(`#save_${key.replace(/[^a-zA-Z0-9-]/gm, "-")}`).classList.add("hiddenpls");
+                document.querySelector(`#input_${key.replace(/[^a-zA-Z0-9-]/gm, "-")}`).readOnly = true;
+            })
+        }
+
+        function newSecret(key, value) {
+            fetch(`https://ems-api.litdevs.org/v1/ass/set/${key}`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${getCookie("EMS-token")}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    value
+                })
+            }).then(res => res.json()).then(res => {
+                window.location.reload();
+            })
+        }
+    </script>
+</div>
+
+<%-include("./common/bottom.ejs")%>

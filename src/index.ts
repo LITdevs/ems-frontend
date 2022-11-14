@@ -29,6 +29,16 @@ app.get('/deploy/new', isAuthenticated, (req: Request, res: Response) => {
     res.render('deploy');
 })
 
+app.get('/ass', isAuthenticated, (req: Request, res: Response) => {
+    axios.get('https://ems-api.litdevs.org/v1/ass/list', {
+        headers: {
+            Authorization: `Bearer ${req.cookies["EMS-token"]}`
+        }
+    }).then(response => {
+        res.render('ass', { secrets: response.data.response.data });
+    })
+})
+
 const port = process.env.EMS_FRONTEND_PORT || 1338;
 app.listen(port, () => {
     console.info(`Listening on ${port}`)
