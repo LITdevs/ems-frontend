@@ -1,0 +1,46 @@
+<%-include("./common/head.ejs")%>
+<div class="bg-gray-9 p-2 font-mono rounded-sm h-full w-full overflow-hidden" id="console"></div>
+<p id="errorLogs" class="hidden"><%=JSON.stringify(errorLogs)%></p>
+<p id="infoLogs" class="hidden"><%=JSON.stringify(infoLogs)%></p>
+<p id="app" class="hidden"><%=app%></p>
+<script>
+	// Get the logs from the DOM, where the EJS template has put them
+	let appName = document.getElementById("app").innerHTML;
+	let errorLogs = JSON.parse(document.getElementById("errorLogs").innerHTML);
+	errorLogs.reverse(); // Reverse the array so the most recent logs are at the top
+	let infoLogs = JSON.parse(document.getElementById("infoLogs").innerHTML);
+	infoLogs.reverse(); // Reverse the array so the most recent logs are at the top
+	let tConsole = document.getElementById("console"); // Temporary console since Econsole is not yet defined
+
+	errorLogs.forEach(log => {
+		tConsole.innerHTML = `<span class="text-gray-0">${appName}: ${log}</span><br>${tConsole.innerHTML}`
+	})
+	tConsole.innerHTML = `<span class="text-red-3">[${new Date().toLocaleTimeString()}]: Last 100 lines of error logs</span><br>${tConsole.innerHTML}`
+	infoLogs.forEach(log => {
+		tConsole.innerHTML = `<span class="text-gray-0">${appName}: ${log}</span><br>${tConsole.innerHTML}`
+	})
+	tConsole.innerHTML = `<span class="text-green-1">[${new Date().toLocaleTimeString()}]: Last 100 lines of info logs</span><br>${tConsole.innerHTML}`
+
+    function addPageSpecificListeners() {
+	    wss.addEventListener("message", msg => {
+		    if (msg.data === "pong") return;
+		    let msgObject
+		    try {
+			    msgObject = JSON.parse(msg.data);
+			    msgObject.color = "text-gray-0";
+			    if (msgObject.event.includes("error")) msgObject.color = "text-red-5";
+		    } catch {
+			    msgObject = {message: msg.data}
+			    msgObject.name = "unknown"
+			    msgObject.color = "text-gray-0";
+		    }
+			if (msgObject.name !== appName) return;
+		    Econsole.innerHTML = `<span class="${msgObject.color}">[${new Date().toLocaleTimeString()}] ${msgObject.name}: ${msgObject.message}</span><br>${Econsole.innerHTML}`
+	    })
+    }
+    setInterval(() => {
+	    wss.send("ping");
+    }, 10000)
+</script>
+<script src="/js/console.js"></script>
+<%-include("./common/bottom.ejs")%>

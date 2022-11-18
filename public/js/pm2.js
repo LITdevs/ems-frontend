@@ -75,3 +75,52 @@ function processPower(name) {
     })
 
 }
+
+function processRestart(name) {
+    if (name.includes("ems") && !confirm("Looks like you are trying to restart something related to the EMS!" +
+        "\nThis may result in odd behaviour, you have been warned" +
+        "\n\nProceed?")) return;
+    if (!statuses[name]) statuses[name] = {name: name, status: true};
+    fetch("https://ems-api.litdevs.org/v1/pm2/restart", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${getCookie("EMS-token")}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            appName: name
+        })
+    }).then(res => res.json()).then(res => {
+        if (typeof res?.request?.status_code !== "number") {
+            alert("Unknown error");
+            return setTimeout(() => {processStatus(name)}, 1000);
+        }
+        alert(res.response.message)
+        return setTimeout(() => {processStatus(name)}, 1000);
+    })
+}
+
+function processPull(name) {
+    if (name.includes("ems") && !confirm("Looks like you are going to restart something related to the EMS!" +
+        "\nThis may result in odd behaviour, you have been warned" +
+        "\n\nProceed?")) return;
+    fetch("https://ems-api.litdevs.org/v1/pm2/pull", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${getCookie("EMS-token")}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            appName: name
+        })
+    }).then(res => res.json()).then(res => {
+        if (typeof res?.request?.status_code !== "number") {
+            alert("Unknown error");
+            processRestart(name)
+            return setTimeout(() => {processStatus(name)}, 1000);
+        }
+        alert(res.response.message)
+        processRestart(name)
+        return setTimeout(() => {processStatus(name)}, 1000);
+    })
+}

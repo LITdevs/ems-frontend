@@ -13,8 +13,8 @@
                     <input type="text" class="form-input" name="runCommand" placeholder="index.js | npm run dev" required>
                 </label><br>
                 <label>
-                    Default port:
-                    <input type="number" min="1" class="form-input" name="defaultPort" placeholder="1337" required>
+                    Default port <small class="underline decoration-dotted cursor-pointer" onclick="alert('The port the app runs on by default, if not using a port set to 0')">(help!!)</small>:
+                    <input type="number" min="0" class="form-input" name="defaultPort" placeholder="1337" required>
                 </label><br>
                 <label>
                     Port environment variable:
@@ -22,7 +22,7 @@
                 </label><br>
                 <label>
                     Package manager:
-                    <input type="text" class="form-input" name="pacman" placeholder="yarn | npm" required>
+                    <input type="text" class="form-input" name="pacman" placeholder="yarn | npm | pip" required>
                 </label><br>
                 <label>
                     Icon <small class="underline decoration-dotted cursor-pointer" onclick="alert('Enter an image url, or path to a file on the Eye')">(help!!)</small>:
@@ -137,7 +137,6 @@
             <div class="bg-gray-9 p-2 m-2 font-mono rounded-sm h-72 overflow-hidden" id="console"></div>
         </div>
 </div>
-<script src="/js/console.js"></script>
 <script>
     document.getElementById("deployForm").addEventListener("submit", deploy);
 
@@ -184,71 +183,74 @@
 
     let nameFilter;
     let currentStage = "existing_check";
-    wss.addEventListener("message", msg => {
-        if (msg.data === "pong") return;
-        let msgObject;
-        try {
-            msgObject = JSON.parse(msg.data);
-            msgObject.color = "text-gray-0";
-            if (msgObject.event.startsWith("deploy_")) {
-                // deploy_existing_check_start
-                let eventName = msgObject.event.split("deploy_")[1]
-                // existing_check_start
-                let eventType;
-                if (eventName.endsWith("_start")) eventType = "start";
-                if (eventName.endsWith("_update")) eventType = "update";
-                if (eventName.endsWith("_end")) eventType = "end";
-                // start
-                eventName = eventName.split(`_${eventType}`)[0]
-                // existing_check
+	function addPageSpecificListeners() {
+		wss.addEventListener("message", msg => {
+			if (msg.data === "pong") return;
+			let msgObject;
+			try {
+				msgObject = JSON.parse(msg.data);
+				msgObject.color = "text-gray-0";
+				if (msgObject.event.startsWith("deploy_")) {
+					// deploy_existing_check_start
+					let eventName = msgObject.event.split("deploy_")[1]
+					// existing_check_start
+					let eventType;
+					if (eventName.endsWith("_start")) eventType = "start";
+					if (eventName.endsWith("_update")) eventType = "update";
+					if (eventName.endsWith("_end")) eventType = "end";
+					// start
+					eventName = eventName.split(`_${eventType}`)[0]
+					// existing_check
 
-                let statusCircle = document.querySelector(`.${eventName}`)
-                switch (eventType) {
-                    case "start":
-                        statusCircle.classList.replace("fa-regular", "fa-solid");
-                        statusCircle.classList.replace("fa-circle", "fa-circle-notch");
-                        statusCircle.classList.add("spin");
-                        currentStage = eventName;
-                        break;
-                    case "update":
-                        break;
-                    case "end":
-                        statusCircle.classList.replace("fa-circle-notch", "fa-circle-check");
-                        statusCircle.classList.remove("spin");
-                        statusCircle.classList.add("text-green-5");
-                }
-            }
-            if (msgObject.event.includes("error")) {
-                msgObject.color = "text-red-5";
-                let statusCircle = document.querySelector(`.${currentStage}`)
-                statusCircle.classList.remove("spin")
-                statusCircle.classList.replace("fa-regular", "fa-solid");
-                statusCircle.classList.replace("fa-circle", "fa-circle-notch");
-                statusCircle.classList.replace("fa-circle-notch", "fa-circle-check");
-                statusCircle.classList.remove("text-green-5")
-                statusCircle.classList.add("text-red-5")
-                // Handle error message, ERR_USER_FAULt for X, Internal error for !
-                if (msgObject.message.startsWith("ERR_USER_FAULT")) {
-                    statusCircle.classList.replace("fa-circle-check", "fa-circle-xmark");
-                } else {
-                    statusCircle.classList.replace("fa-circle-check", "fa-circle-exclamation");
-                }
-            }
+					let statusCircle = document.querySelector(`.${eventName}`)
+					switch (eventType) {
+						case "start":
+							statusCircle.classList.replace("fa-regular", "fa-solid");
+							statusCircle.classList.replace("fa-circle", "fa-circle-notch");
+							statusCircle.classList.add("spin");
+							currentStage = eventName;
+							break;
+						case "update":
+							break;
+						case "end":
+							statusCircle.classList.replace("fa-circle-notch", "fa-circle-check");
+							statusCircle.classList.remove("spin");
+							statusCircle.classList.add("text-green-5");
+					}
+				}
+				if (msgObject.event.includes("error")) {
+					msgObject.color = "text-red-5";
+					let statusCircle = document.querySelector(`.${currentStage}`)
+					statusCircle.classList.remove("spin")
+					statusCircle.classList.replace("fa-regular", "fa-solid");
+					statusCircle.classList.replace("fa-circle", "fa-circle-notch");
+					statusCircle.classList.replace("fa-circle-notch", "fa-circle-check");
+					statusCircle.classList.remove("text-green-5")
+					statusCircle.classList.add("text-red-5")
+					// Handle error message, ERR_USER_FAULt for X, Internal error for !
+					if (msgObject.message.startsWith("ERR_USER_FAULT")) {
+						statusCircle.classList.replace("fa-circle-check", "fa-circle-xmark");
+					} else {
+						statusCircle.classList.replace("fa-circle-check", "fa-circle-exclamation");
+					}
+				}
 
-        } catch (e) {
-            console.log(e)
-            msgObject = {message: msg.data}
-            msgObject.name = "unknown"
-            msgObject.color = "text-gray-0";
-        }
-        if ((nameFilter && nameFilter === msgObject.name) || !nameFilter) {
-            if (msgObject.message.includes("successful")) msgObject.color = "text-green-5";
-            Econsole.innerHTML = `<span class="${msgObject.color}">[${new Date().toLocaleTimeString()}] ${msgObject.name}: ${msgObject.message}</span><br>${Econsole.innerHTML}`;
-        }
-    })
+			} catch (e) {
+				console.log(e)
+				msgObject = {message: msg.data}
+				msgObject.name = "unknown"
+				msgObject.color = "text-gray-0";
+			}
+			if ((nameFilter && nameFilter === msgObject.name) || !nameFilter) {
+				if (msgObject.message.includes("successful")) msgObject.color = "text-green-5";
+				Econsole.innerHTML = `<span class="${msgObject.color}">[${new Date().toLocaleTimeString()}] ${msgObject.name}: ${msgObject.message}</span><br>${Econsole.innerHTML}`;
+			}
+		})
+    }
 
     setInterval(() => {
         wss.send("ping");
     }, 10000)
 </script>
+<script src="/js/console.js"></script>
 <%-include("./common/bottom.ejs")%>

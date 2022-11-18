@@ -9,10 +9,10 @@
             </td>
             <td class="float-right">
                 <i class="fa-solid fa-power-off p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8" title="On/Off" onclick="processPower('<%=process.name%>')"></i>
-                <i class="fa-solid fa-align-left p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8" title="Logs" onclick=""></i>
-                <i class="fa-solid fa-arrow-down-long p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8" title="Git pull" onclick=""></i>
-                <i class="fa-solid fa-arrow-rotate-left p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8" title="Restart" onclick=""></i>
-                <i class="fa-solid fa-wrench p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8" title="Manage" onclick=""></i>
+                <a href="/logs/<%=process.name%>"><i class="fa-solid fa-align-left p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8" title="Logs"></i></a>
+                <i class="fa-solid fa-arrow-down-long p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8" title="Git pull" onclick="processPull('<%=process.name%>')"></i>
+                <i class="fa-solid fa-arrow-rotate-left p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8" title="Restart" onclick="processRestart('<%=process.name%>')"></i>
+                <!--<i class="fa-solid fa-wrench p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8" title="Manage" onclick=""></i>-->
             </td>
         </tr>
     </table>
