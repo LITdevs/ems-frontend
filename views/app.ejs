@@ -1,0 +1,144 @@
+<%-include("common/head.ejs")%>
+<% if (app.trackingName) { %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<% } %>
+<div class="max-w-[80vw]">
+    <div class="flex flex-row justify-center">
+        <div class="bg-gray-8.5 mt-2 p-2 rounded-sm w-[60vw]">
+            <!-- Name and icon -->
+            <img alt="Icon of <%=app.displayName %>" src="https://ems-api.litdevs.org/v1/pm2/icon/<%=app.name%>" width="64" height="64">
+            <p class="font-bold text-xl"><%=app.displayName%> <span class="font-mono font-normal text-gray-6"><%=app.name%></span></p>
+
+            <!-- Status -->
+            <div class="block">
+                <div class="<%=app.name%>-status-dot status-dot status-dot-gray"></div><span class="status-text <%=app.name%>-status">Unknown</span>
+            </div>
+            <%if (app.trackingName) { %>
+                <p>Uptime in the last 7 days: <span id="uptime">00</span>%</p>
+            <% } %>
+            <!-- Action buttons -->
+            <br>
+            <i class="fa-solid fa-power-off p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8 text-xl" title="On/Off" onclick="processPower('<%=app.name%>')"></i>
+            <a href="/logs/<%=app.name%>">
+                <i class="fa-solid fa-align-left p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8 text-xl" title="Logs"></i>
+            </a>
+            <i class="fa-solid fa-arrow-down-long p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8 text-xl" title="Git pull" onclick="processPull('<%=app.name%>')"></i>
+            <i class="fa-solid fa-arrow-rotate-left p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8 text-xl" title="Restart" onclick="processRestart('<%=app.name%>')"></i>
+            <br><br>
+
+            <p class="font-bold">Response time:</p>
+            <% if (app.trackingName) { %>
+            <!-- Graph -->
+            <label>
+                Scale:
+                <select class="timescale" onchange="reChart(parseInt(this.value))">
+                    <option value="4">1 hour</option>
+                    <option value="16">4 hours</option>
+                    <option value="48">12 hours</option>
+                    <option value="96">24 hours</option>
+                    <option value="192">48 hours</option>
+                    <option selected value="672">7 days</option>
+                </select>
+            </label>
+            <canvas id="responseTime" width="59vw"></canvas>
+            <% } else { %>
+                <p>App is currently not being tracked.</p>
+                <form id="trackingForm">
+                    <label>
+                        Url to track:<br>
+                        <input type="text" name="trackingUrl" placeholder="https://vukkybox.com" class="input-box">
+                    </label>
+                    <input type="submit" value="Start tracking" class="form-btn-green">
+                </form>
+            <% } %>
+            <br>
+            <a class="btn" href="/app/<%=app.name%>/env">Environment</a>
+            <br><br>
+
+        </div>
+    </div>
+    <script src="/js/pm2.js"></script>
+    <% if (app.trackingName) { %>
+    <script>
+        let chart;
+        let dataPoints;
+		let downtime = 0;
+	    fetch(`https://uptime.litdevs.org/<%=app.trackingName%>`).then(res => res.json()).then(res => {
+		    dataPoints = res.map((item) => {
+				if (item.duration === -1 || item.statusCode !== 200) downtime++;
+			    return {
+				    x: new Date(item.timestamp),
+				    y: item.duration
+			    }
+		    });
+			document.getElementById("uptime").innerHTML = `${((dataPoints.length - downtime) / dataPoints.length * 100).toFixed(2)}`;
+		    chart = new Chart(document.getElementById(`responseTime`), {
+			    type: 'line',
+			    data: {
+				    datasets: [{
+					    cubicInterpolationMode: 'monotone',
+					    backgroundColor: '#FFB1C1',
+					    borderColor: '#FF6384',
+					    borderWidth: 1,
+					    radius: 0,
+					    label: "Response time (ms)",
+					    data: dataPoints
+				    }]
+			    },
+			    options: {
+				    interaction: {
+					    intersect: false
+				    },
+				    scales: {
+					    x: {
+						    type: "time",
+						    time: {
+							    unit: "day"
+						    },
+						    min: new Date(dataPoints[0].x),
+						    max: new Date(dataPoints[dataPoints.length - 1].x),
+					    },
+					    y: {
+						    min: -1
+					    }
+				    }
+			    }
+		    })
+	    })
+
+        function reChart(timescale) {
+            if (timescale <= dataPoints.length) chart.options.scales.x.min = new Date(dataPoints[dataPoints.length - timescale].x)
+            else chart.options.scales.x.min = new Date(dataPoints[0].x)
+            chart.update()
+        }
+    </script>
+    <% } else { %>
+    <script>
+        document.getElementById("trackingForm").addEventListener("submit", (e) => {
+            e.preventDefault()
+            let url = document.querySelector("input[name='trackingUrl']").value
+            fetch("https://ems-api.litdevs.org/v1/pm2/track/<%=app.name%>", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    url: url
+                })
+            }).then(res => res.json()).then(res => {
+                if (res.error) {
+                    alert(res.error)
+                } else {
+                    alert("Tracking started!\nData will be available in a few minutes.")
+                    location.reload()
+                }
+            })
+        })
+    </script>
+    <% } %>
+    <script>
+	    processStatus("<%=app.name%>");
+    </script>
+</div>
+<%-include("common/bottom.ejs")%>

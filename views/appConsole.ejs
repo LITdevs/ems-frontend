@@ -15,11 +15,11 @@
 	errorLogs.forEach(log => {
 		tConsole.innerHTML = `<span class="text-gray-0">${appName}: ${log}</span><br>${tConsole.innerHTML}`
 	})
-	tConsole.innerHTML = `<span class="text-red-3">[${new Date().toLocaleTimeString()}]: Last 100 lines of error logs</span><br>${tConsole.innerHTML}`
+	tConsole.innerHTML = `<span class="text-red-3">[${new Date().toLocaleTimeString()}] Last 100 lines of error logs</span><br>${tConsole.innerHTML}`
 	infoLogs.forEach(log => {
 		tConsole.innerHTML = `<span class="text-gray-0">${appName}: ${log}</span><br>${tConsole.innerHTML}`
 	})
-	tConsole.innerHTML = `<span class="text-green-1">[${new Date().toLocaleTimeString()}]: Last 100 lines of info logs</span><br>${tConsole.innerHTML}`
+	tConsole.innerHTML = `<span class="text-green-1">[${new Date().toLocaleTimeString()}] Last 100 lines of info logs</span><br>${tConsole.innerHTML}`
 
     function addPageSpecificListeners() {
 	    wss.addEventListener("message", msg => {

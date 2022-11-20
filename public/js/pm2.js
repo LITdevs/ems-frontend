@@ -3,6 +3,8 @@ let statuses = {};
 
 function processStatus(name) {
     if (!statuses[name]) statuses[name] = {name: name, status: true};
+    let trackingName = document.querySelector(`#tracking_${name}`)?.innerHTML;
+    if (trackingName) processTracking(trackingName);
     fetch("https://ems-api.litdevs.org/v1/pm2/status", {
         method: "POST", // I know it makes no sense for this to be a POST
         headers: {
@@ -122,5 +124,53 @@ function processPull(name) {
         alert(res.response.message)
         processRestart(name)
         return setTimeout(() => {processStatus(name)}, 1000);
+    })
+}
+
+function processTracking(name) {
+    console.log(`charting ${name}`)
+    fetch(`https://uptime.litdevs.org/${name}`).then(res => res.json()).then(res => {
+      let dataPoints = res.map((item) => {
+        return {
+          x: new Date(item.timestamp),
+          y: item.duration
+        }
+      });
+      let chart = new Chart(document.getElementById(`chart_${name}`), {
+          type: 'line',
+          data: {
+                datasets: [{
+                    cubicInterpolationMode: 'monotone',
+                    backgroundColor: '#FFB1C1',
+                    borderColor: '#FF6384',
+                    borderWidth: 1,
+                    radius: 0,
+                    label: "Response time (ms)",
+                    data: dataPoints
+                }]
+          },
+          options: {
+              interaction: {
+                  intersect: false
+              },
+              scales: {
+                  x: {
+                      type: "time",
+                      time: {
+                          unit: "day"
+                      },
+                      min: new Date(dataPoints[0].x),
+                      max: new Date(dataPoints[dataPoints.length - 1].x),
+                  },
+                  y: {
+                      min: -1
+                  }
+              }
+          }
+      })
+        timescale = 32;
+      if (timescale <= dataPoints.length) chart.options.scales.x.min = new Date(dataPoints[dataPoints.length - timescale].x)
+      else chart.options.scales.x.min = new Date(dataPoints[0].x)
+      chart.update()
     })
 }

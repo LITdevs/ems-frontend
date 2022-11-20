@@ -64,7 +64,7 @@ body {
 }
 
 .service-card {
-    @apply bg-gray-9 rounded-md p-5 my-2 w-2/5 max-w-sm shadow-md;
+    @apply bg-gray-9 rounded-md p-5 m-2 w-96 max-w-sm shadow-md;
 }
 
 .status-text {
@@ -128,4 +128,9 @@ body {
 
 .hiddenpls {
     @apply hidden !important;
+}
+
+.timescale {
+    @apply input-box;
+    @apply w-24 !important;
 }

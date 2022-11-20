@@ -1,7 +1,9 @@
 <%-include("./common/head.ejs")%>
-<div>
-        <a href="/deploy/new">
-                <div class="service-card cursor-pointer hover:bg-gray-7 transition-all select-none">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<div class="flex flex-wrap max-w-[80vw]">
+        <a href="/deploy/new" class="service-card cursor-pointer hover:bg-gray-7 transition-all select-none">
+                <div>
                         <table class="w-full">
                                 <tr>
                                         <td class="align-middle">
@@ -15,6 +17,7 @@
                 <table class="w-full">
                         <tr>
                                 <td>
+                                        <img alt="Icon of ATM7 Server. The all the mods 7 logo, 'LIT' scribbled on top" src="https://ems-api.litdevs.org/v1/minecraft/icon" width="64" height="64">
                                         <span class="font-bold text-gray-0">ATM7 Server</span>
                                         <div class="block">
                                                 <div class="atm-status-dot status-dot status-dot-gray"></div><span class="status-text atm-status">Unknown</span>
@@ -27,22 +30,6 @@
                         </tr>
                 </table>
                 <script src="/js/atm.js"></script>
-        </div>
-        <div class="service-card funserver-card">
-                <table class="w-full">
-                        <tr>
-                                <td>
-                                        <span class="font-bold text-gray-0">sharkys server of fun times and *crash*</span>
-                                        <div class="block">
-                                                <div class="funserver-status-dot status-dot status-dot-gray"></div><span class="status-text funserver-status">Unknown</span>
-                                        </div>
-                                </td>
-                                <td class="float-right">
-                                        <i class="fa-solid fa-power-off p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8" title="On/Off" onclick="funserverpower(false)"></i>
-                                </td>
-                        </tr>
-                </table>
-                <script src="/js/funserver.js"></script>
         </div>
         <script src="/js/pm2.js"></script>
         <%

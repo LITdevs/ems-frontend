@@ -53,6 +53,37 @@ app.get("/logs/:appName", isAuthenticated, (req: Request, res: Response) => {
     })
 })
 
+app.get("/app/:appName", isAuthenticated, (req: Request, res: Response) => {
+    // Get app status
+    axios.post(`https://ems-api.litdevs.org/v1/pm2/status`, { appName: req.params.appName }, {
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${req.cookies["EMS-token"]}`
+        }
+    }).then(response => {
+        if (response.status === 404) return res.status(404).send("No such app");
+        res.render("app", { app: response.data.response.definition });
+    }).catch(err => {
+        console.error(err);
+        res.status(500).send("Internal Server Error or app not found");
+    })
+})
+app.get("/app/:appName/env", isAuthenticated, (req: Request, res: Response) => {
+    // Get app status
+    axios.post(`https://ems-api.litdevs.org/v1/pm2/status`, { appName: req.params.appName }, {
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${req.cookies["EMS-token"]}`
+        }
+    }).then(response => {
+        if (response.status === 404) return res.status(404).send("No such app");
+        res.render("env", { app: response.data.response.definition });
+    }).catch(err => {
+        console.error(err);
+        res.status(500).send("Internal Server Error or app not found");
+    })
+})
+
 const port = process.env.EMS_FRONTEND_PORT || 1338;
 app.listen(port, () => {
     console.info(`Listening on ${port}`);
