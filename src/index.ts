@@ -84,6 +84,10 @@ app.get("/app/:appName/env", isAuthenticated, (req: Request, res: Response) => {
     })
 })
 
+app.get("/nginx", isAuthenticated, (req: Request, res: Response) => {
+   res.render("nginx");
+})
+
 const port = process.env.EMS_FRONTEND_PORT || 1338;
 app.listen(port, () => {
     console.info(`Listening on ${port}`);

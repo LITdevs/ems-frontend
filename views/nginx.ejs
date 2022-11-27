@@ -1,0 +1,61 @@
+<%-include("./common/head.ejs")%>
+<div class="max-w-[80vw] ml-2">
+    <small>All sites that need any additional config should be added manually</small><br>
+    <span class="font-bold">Known sites:</span>
+    <span id="t"></span>
+    <br><br>
+    <form id="postForm">
+        <span class="font-bold">Add or update site</span><br>
+        <label for="appSelect">App:</label>
+        <select id="appSelect" class="form-input">
+        </select>
+        <br>
+        <label for="siteInput">Site:</label>
+        <input id="siteInput"
+               class="form-input"
+               oninput="if (this.value.startsWith('http')) { this.classList.add('input-warn');document.querySelector('#inputWarn').innerHTML = 'Do not include protocol<br>'; } else { this.classList.remove('input-warn');document.querySelector('#inputWarn').textContent = ''; }"
+               type="text"
+               placeholder="example.com">
+        <br><span id="inputWarn" class="font-bold text-orange-4"></span>
+        <input type="submit" class="form-btn-green" value="Add/Update">
+    </form>
+</div>
+<script>
+    document.getElementById("postForm").onsubmit = (e) => {
+		e.preventDefault();
+		let site = document.getElementById("siteInput").value;
+		let app = document.getElementById("appSelect").value;
+		if (site.startsWith("http") && !confirm("Your site appears to include the protocol, are you sure you want to continue?")) return;
+		fetch("https://ems-api.litdevs.org/v1/nginx/domain", {
+			method: "POST",
+            headers: {
+				"Authorization": `Bearer ${getCookie("EMS-token")}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "domain": site,
+                "appName": app
+            })
+        }).then(res => res.json()).then(res => {
+			if (res.request.status_code === 200) return window.location.reload();
+			alert(res.request.status_code + ": " + res.response.message);
+        }).catch(err => {
+			alert(err);
+		});
+    }
+
+    let tracking = "";
+	fetch("https://ems-api.litdevs.org/v1/pm2/processes", {headers: {"Authorization": `Bearer ${getCookie("EMS-token")}`}}).then(res => res.json()).then(res => {
+        res.response.data.forEach(app => {
+            document.getElementById("appSelect").innerHTML += `<option value="${app.name}">${app.displayName}</option>`;
+        });
+	})
+    fetch("https://ems-api.litdevs.org/v1/nginx/list", {headers: {"Authorization": `Bearer ${getCookie("EMS-token")}`}}).then(res => res.json()).then(res => {
+		let data = res.response.data
+        Object.keys(data).forEach(app => {
+			tracking += `<br><span class="font-mono text-gray-6">${app}</span>: ${data[app]}`
+        })
+        document.getElementById("t").innerHTML = tracking
+    })
+</script>
+<%-include("./common/bottom.ejs")%>
