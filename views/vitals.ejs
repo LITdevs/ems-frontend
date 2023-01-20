@@ -222,6 +222,7 @@
 		})
 
 		vramUsage = data.map((dataPoint) => {
+			if (dataPoint.response.response?.data?.gpu?.memory?.total) {
 			let vramTotal = dataPoint.response.response.data.gpu.memory.total.split(" ")[0]
             let vramFree = dataPoint.response.response.data.gpu.memory.free.split(" ")[0]
             let vramUsed = vramTotal - vramFree;
@@ -232,6 +233,7 @@
                 percentage: Number(vramUsedPercentage),
                 mb: Number((1.049 * vramUsed).toFixed(2))
 			}
+			} else return { x: new Date(dataPoint.timestamp), percentage: 0, mb: 0 }
 		})
 
         systemDriveUsage = data.map((dataPoint) => {
