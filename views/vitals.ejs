@@ -129,19 +129,20 @@
 			/**
              * GPU
              */
-			document.querySelector("#gpuTempMeter").value = res.response.data.gpu.temp.split(" ")[0];
-			document.querySelector("#gpuTempValue").innerText = `${res.response.data.gpu.temp.split(" ")[0]}ºC`;
-			document.querySelector("#gpuUsageMeter").value = res.response.data.gpu.utilization.gpu_util.split(" ")[0];
-			document.querySelector("#gpuUsageValue").innerText = `${res.response.data.gpu.utilization.gpu_util.split(" ")[0]}%`;
-			let vramTotal = res.response.data.gpu.memory.total.split(" ")[0]
-			let vramFree = res.response.data.gpu.memory.free.split(" ")[0]
-			let vramUsed = vramTotal - vramFree;
-			let vramUsedPercentage = ((vramUsed / vramTotal) * 100).toFixed(2);
-			document.querySelector("#vramUsageMeter").value = vramUsedPercentage;
-			document.querySelector("#vramUsageValue").innerText = `${vramUsedPercentage}% (${vramUsed}MB/${vramTotal}MB)`;
-			document.querySelector("#gpuCoreClockValue").innerText = `Core clock: ${res.response.data.gpu.coreClock}`;
-			document.querySelector("#gpuMemoryClockValue").innerText = `Memory clock: ${res.response.data.gpu.memoryClock}`;
-
+	     		if (res.response.data?.gpu?.temp) {
+				document.querySelector("#gpuTempMeter").value = res.response.data.gpu.temp.split(" ")[0];
+				document.querySelector("#gpuTempValue").innerText = `${res.response.data.gpu.temp.split(" ")[0]}ºC`;
+				document.querySelector("#gpuUsageMeter").value = res.response.data.gpu.utilization.gpu_util.split(" ")[0];
+				document.querySelector("#gpuUsageValue").innerText = `${res.response.data.gpu.utilization.gpu_util.split(" ")[0]}%`;
+				let vramTotal = res.response.data.gpu.memory.total.split(" ")[0]
+				let vramFree = res.response.data.gpu.memory.free.split(" ")[0]
+				let vramUsed = vramTotal - vramFree;
+				let vramUsedPercentage = ((vramUsed / vramTotal) * 100).toFixed(2);
+				document.querySelector("#vramUsageMeter").value = vramUsedPercentage;
+				document.querySelector("#vramUsageValue").innerText = `${vramUsedPercentage}% (${vramUsed}MB/${vramTotal}MB)`;
+				document.querySelector("#gpuCoreClockValue").innerText = `Core clock: ${res.response.data.gpu.coreClock}`;
+				document.querySelector("#gpuMemoryClockValue").innerText = `Memory clock: ${res.response.data.gpu.memoryClock}`;
+			}
 			renderGraphs();
 		}).catch(err => {
 			console.log(err);
@@ -201,7 +202,7 @@
         gpuTemp = data.map((dataPoint) => {
 	        return {
 		        x: new Date(dataPoint.timestamp),
-		        y: Number(dataPoint.response.response.data.gpu.temp.split(" ")[0])
+		        y: Number(dataPoint?.response?.response?.data?.gpu?.temp?.split(" ")[0]) || 21
 	        }
         })
 
