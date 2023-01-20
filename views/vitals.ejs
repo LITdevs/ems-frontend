@@ -209,7 +209,7 @@
         gpuUsage = data.map((dataPoint) => {
             return {
                 x: new Date(dataPoint.timestamp),
-                y: Number(dataPoint.response.response.data.gpu.utilization.gpu_util.split(" ")[0])
+                y: Number(dataPoint?.response?.response?.data?.gpu?.utilization?.gpu_util?.split(" ")[0]) || 0
             }
         })
 
