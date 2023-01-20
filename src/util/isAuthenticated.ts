@@ -16,6 +16,6 @@ export default async function (req, res, next) {
     if (jwtData.exp * 1000 < Date.now()) return logout();
 
     res.locals.user = jwtData;
-
+    res.locals.restrictNav = false;
     next();
 }

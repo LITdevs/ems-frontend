@@ -1,3 +1,6 @@
+<%
+ console.log(restrictNav)
+ %>
 <%-include("./common/head.ejs")%>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
@@ -30,6 +33,24 @@
                         </tr>
                 </table>
                 <script src="/js/atm.js"></script>
+        </div>
+        <div class="service-card fml-card">
+                <table class="w-full">
+                        <tr>
+                                <td>
+                                        <img alt="Icon of FML Server." src="https://ems-api.litdevs.org/v1/minecraft2/icon" width="64" height="64">
+                                        <span class="font-bold text-gray-0">FML Server</span>
+                                        <div class="block">
+                                                <div class="fml-status-dot status-dot status-dot-gray"></div><span class="status-text fml-status">Unknown</span>
+                                        </div>
+                                </td>
+                                <td class="float-right">
+                                        <i class="fa-solid fa-power-off p-2 ml-2 rounded-md cursor-pointer hover:bg-gray-8" title="On/Off" onclick="fmlpower(false)"></i>
+                                        <i class="fa-solid fa-plug-circle-exclamation p-2 rounded-md cursor-pointer hover:bg-gray-8" title="Force shutdown" onclick="fmlpower(true)"></i>
+                                </td>
+                        </tr>
+                </table>
+                <script src="/js/fml.js"></script>
         </div>
         <script src="/js/pm2.js"></script>
         <%

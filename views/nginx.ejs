@@ -25,7 +25,7 @@
 		e.preventDefault();
 		let site = document.getElementById("siteInput").value;
 		let app = document.getElementById("appSelect").value;
-		if (site.startsWith("http") && !confirm("Your site appears to include the protocol, are you sure you want to continue?")) return;
+		if (site.includes("://") && !confirm("Your site appears to include the protocol, are you sure you want to continue?")) return;
 		fetch("https://ems-api.litdevs.org/v1/nginx/domain", {
 			method: "POST",
             headers: {

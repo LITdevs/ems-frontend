@@ -85,7 +85,11 @@ app.get("/app/:appName/env", isAuthenticated, (req: Request, res: Response) => {
 })
 
 app.get("/nginx", isAuthenticated, (req: Request, res: Response) => {
-   res.render("nginx");
+    res.render("nginx");
+})
+
+app.get("/vitals", (req: Request, res: Response) => {
+    res.render("vitals", { restrictNav: !req.cookies?.["EMS-token"] });
 })
 
 const port = process.env.EMS_FRONTEND_PORT || 1338;

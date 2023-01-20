@@ -138,3 +138,19 @@ body {
     @apply input-box;
     @apply w-24 !important;
 }
+
+.vitalCard {
+    @apply bg-gray-8.5 p-2 m-2 rounded-md w-72 justify-center block;
+}
+
+.vitalContainer {
+    @apply flex flex-row flex-wrap;
+}
+
+.graphContainer {
+    @apply flex flex-row flex-wrap;
+}
+
+.graphCard {
+    @apply bg-gray-8.5 p-2 m-2 rounded-md w-96 justify-center block;
+}

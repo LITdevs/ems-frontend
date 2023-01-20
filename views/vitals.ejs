@@ -1,0 +1,567 @@
+<%-include("./common/head.ejs", { restrictNav })%>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<div>
+    <div class="text-center">
+        <marquee scrollamount="8"><p id="fortune">Loading...</p></marquee>
+        <div class="vitalContainer max-w-[80vw]">
+            <div class="vitalCard">
+                <p class="font-bold">CPU</p>
+                <label for="tempMeter">CPU Temperature</label><br>
+                <meter id="tempMeter" high="60" value="0" max="100"></meter>
+                <span id="tempValue">0ºC</span><br>
+                <label for="cpuUsageMeter">CPU usage</label><br>
+                <meter id="cpuUsageMeter" high="60" value="0" max="100"></meter>
+                <span id="cpuUsageValue">0%</span><br>
+                <label for="cpuLoad">CPU load</label>
+                <p id="cpuLoad">1m: 0&nbsp;&nbsp;&nbsp;5m: 0&nbsp;&nbsp;&nbsp;15m: 0</p>
+            </div>
+            <div class="vitalCard">
+                <p class="font-bold">GPU - <span id="gpuName">NVIDIA GeForce GTX 1050</span></p>
+                <label for="gpuTempMeter">GPU Temperature</label><br>
+                <meter id="gpuTempMeter" high="60" value="0" max="100"></meter>
+                <span id="gpuTempValue">0ºC</span><br>
+                <label for="gpuUsageMeter">GPU utilization</label><br>
+                <meter id="gpuUsageMeter" high="60" value="0" max="100"></meter>
+                <span id="gpuUsageValue">0%</span><br>
+                <label for="gpuUsageMeter">VRAM usage</label><br>
+                <meter id="vramUsageMeter" high="60" value="0" max="100"></meter>
+                <span id="vramUsageValue">0%</span><br>
+                <span id="gpuCoreClockValue">Core clock: 0 MHz</span><br>
+                <span id="gpuMemoryClockValue">Memory clock: 0 MHz</span><br>
+            </div>
+            <div class="vitalCard">
+                <p class="font-bold">Memory</p>
+                <label for="memoryMeter">Memory usage</label><br>
+                <meter id="memoryMeter" high="60" value="0" max="100"></meter>
+                <span id="memoryValue">0</span>
+            </div>
+            <div class="vitalCard">
+                <p class="font-bold">Storage</p>
+                <label for="systemDriveMeter">System drive usage</label><br>
+                <meter id="systemDriveMeter" high="50" value="0" max="100"></meter>
+                <span id="systemDriveValue">0</span><br>
+                <label for="dataDriveMeter">Data drive usage</label><br>
+                <meter id="dataDriveMeter" high="80" value="0" max="100"></meter>
+                <span id="dataDriveValue">0</span>
+            </div>
+            <div class="vitalCard">
+                <p class="font-bold">Network</p>
+                <p id="netInOut">In: 0Mb/s Out: 0Mb/s</p>
+                <p id="netStatsIn">Input bytes: 0</p>
+                <p id="netStatsOut">Output bytes: 0</p>
+            </div>
+            <div class="vitalCard">
+                <p class="font-bold">Misc</p>
+                <p id="uptime">Uptime: 0s</p>
+                <p id="hostname">Hostname: Eye</p>
+                <p id="os">OS: Ubuntu 22.04 linux x64</p>
+                <p id="openFiles">Open files: 0</p>
+            </div>
+        </div>
+        <div class="graphContainer max-w-[80vw]">
+            <div class="graphCard">
+                <p class="font-bold">Temperatures</p>
+                <canvas id="tempChart"></canvas>
+            </div>
+            <div class="graphCard">
+                <p class="font-bold">CPU & GPU usage</p>
+                <canvas id="usageChart"></canvas>
+            </div>
+            <div class="graphCard">
+                <p class="font-bold">Memory usage</p>
+                <canvas id="memoryChart"></canvas>
+            </div>
+            <div class="graphCard">
+                <p class="font-bold">Storage usage</p>
+                <canvas id="storageChart"></canvas>
+            </div>
+            <div class="graphCard">
+                <p class="font-bold">Network usage</p>
+                <canvas id="netChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    let dataDriveCapacity = 1862.65;
+    let systemDriveCapacity = 220.8;
+    function updateVitalDisplay() {
+		fetch('https://ems-api.litdevs.org/v1/vitals').then(res => {
+			if (res.status === 429) return "TMR";
+			return res.json()
+		}).then(res => {
+			if (res === "TMR") return document.querySelector("#fortune").innerText = "Still loading... You're being rate limited.";
+			console.log(res)
+			/**
+             * Cpu
+			 */
+			document.querySelector("#fortune").innerText = res.response.message;
+			document.querySelector("#tempMeter").value = res.response.data.cpu.temp;
+			document.querySelector("#tempValue").innerText = `${res.response.data.cpu.temp}°C`;
+			document.querySelector("#cpuUsageValue").innerText = `${res.response.data.cpu.usage}%`;
+			document.querySelector("#cpuUsageMeter").value = res.response.data.cpu.usage;
+			document.querySelector("#cpuLoad").innerHTML = `1m: ${res.response.data.cpu.load.minute_1}&nbsp;&nbsp;&nbsp;5m: ${res.response.data.cpu.load.minute_5}&nbsp;&nbsp;&nbsp;15m: ${res.response.data.cpu.load.minute_15}`;
+			/**
+             * Memory
+			 */
+			document.querySelector("#memoryMeter").value = res.response.data.memory.usedMemPercentage;
+			document.querySelector("#memoryValue").innerText = `${res.response.data.memory.usedMemPercentage}% (${res.response.data.memory.usedMemMb}MB/${res.response.data.memory.totalMemMb}MB)`;
+			/**
+             * Storage
+			 */
+			document.querySelector("#systemDriveMeter").value = res.response.data.storage.systemDrive.usedPercentage;
+			document.querySelector("#systemDriveValue").innerText = `${res.response.data.storage.systemDrive.usedPercentage}% (${res.response.data.storage.systemDrive.usedGb}GB/${res.response.data.storage.systemDrive.totalGb}GB)`;
+			systemDriveCapacity = res.response.data.storage.systemDrive.totalGb;
+			document.querySelector("#dataDriveMeter").value = res.response.data.storage.dataDrive.usedPercentage;
+			document.querySelector("#dataDriveValue").innerText = `${res.response.data.storage.dataDrive.usedPercentage}% (${res.response.data.storage.dataDrive.usedGb}GB/${res.response.data.storage.dataDrive.totalGb}GB)`;
+            dataDriveCapacity = res.response.data.storage.dataDrive.totalGb;
+			/**
+             * Misc
+             */
+            document.querySelector("#uptime").innerText = `Uptime: ${res.response.data.misc.uptime}s`;
+			document.querySelector("#hostname").innerText = `Hostname: ${res.response.data.misc.hostname}`;
+			document.querySelector("#os").innerText = `OS: ${res.response.data.misc.oos} ${res.response.data.misc.platform} ${res.response.data.misc.arch}`;
+			document.querySelector("#netInOut").innerText = `In: ${res.response.data.misc.netstat.inout.inputMb}Mb/s Out: ${res.response.data.misc.netstat.inout.outputMb}Mb/s`;
+			document.querySelector("#netStatsIn").innerText = `Input bytes: ${res.response.data.misc.netstat.stats.inputBytes}`;
+			document.querySelector("#netStatsOut").innerText = `Output bytes: ${res.response.data.misc.netstat.stats.outputBytes}`;
+			document.querySelector("#openFiles").innerText = `Open files: ${res.response.data.misc.openFiles}`;
+			/**
+             * GPU
+             */
+			document.querySelector("#gpuTempMeter").value = res.response.data.gpu.temp.split(" ")[0];
+			document.querySelector("#gpuTempValue").innerText = `${res.response.data.gpu.temp.split(" ")[0]}ºC`;
+			document.querySelector("#gpuUsageMeter").value = res.response.data.gpu.utilization.gpu_util.split(" ")[0];
+			document.querySelector("#gpuUsageValue").innerText = `${res.response.data.gpu.utilization.gpu_util.split(" ")[0]}%`;
+			let vramTotal = res.response.data.gpu.memory.total.split(" ")[0]
+			let vramFree = res.response.data.gpu.memory.free.split(" ")[0]
+			let vramUsed = vramTotal - vramFree;
+			let vramUsedPercentage = ((vramUsed / vramTotal) * 100).toFixed(2);
+			document.querySelector("#vramUsageMeter").value = vramUsedPercentage;
+			document.querySelector("#vramUsageValue").innerText = `${vramUsedPercentage}% (${vramUsed}MB/${vramTotal}MB)`;
+			document.querySelector("#gpuCoreClockValue").innerText = `Core clock: ${res.response.data.gpu.coreClock}`;
+			document.querySelector("#gpuMemoryClockValue").innerText = `Memory clock: ${res.response.data.gpu.memoryClock}`;
+
+			renderGraphs();
+		}).catch(err => {
+			console.log(err);
+			document.querySelector('div[class="text-center"]').innerHTML = "Error: " + err;
+        });
+    }
+
+    let tempChart
+    let usageChart
+    let memoryChart
+    let storageChart
+    let netChart
+
+    updateVitalDisplay();
+    setInterval(updateVitalDisplay, 5000);
+
+	async function renderGraphs() {
+		let res = await fetch('https://uptime.litdevs.org/vitals');
+		let data = await res.json();
+		let updateCharts = true;
+		if (!tempChart) updateCharts = false;
+		if (!usageChart) updateCharts = false;
+		if (!memoryChart) updateCharts = false;
+		if (!storageChart) updateCharts = false;
+		if (!netChart) updateCharts = false;
+		// CPU graph
+		let cpuTemp;
+		let cpuUsage;
+		// GPU graph
+		let gpuTemp;
+		let gpuUsage;
+		// Memory graph
+		let memoryUsage;
+		let vramUsage;
+		// Storage graph
+		let systemDriveUsage;
+		let dataDriveUsage;
+        // Network graph
+        let netIn;
+        let netOut;
+
+		// Populate arrays
+        cpuTemp = data.map((dataPoint) => {
+			return {
+				x: new Date(dataPoint.timestamp),
+                y: Number(dataPoint.response.response.data.cpu.temp)
+            }
+        })
+
+		cpuUsage = data.map((dataPoint) => {
+			return {
+				x: new Date(dataPoint.timestamp),
+				y: Number(dataPoint.response.response.data.cpu.usage)
+			}
+		})
+
+        gpuTemp = data.map((dataPoint) => {
+	        return {
+		        x: new Date(dataPoint.timestamp),
+		        y: Number(dataPoint.response.response.data.gpu.temp.split(" ")[0])
+	        }
+        })
+
+        gpuUsage = data.map((dataPoint) => {
+            return {
+                x: new Date(dataPoint.timestamp),
+                y: Number(dataPoint.response.response.data.gpu.utilization.gpu_util.split(" ")[0])
+            }
+        })
+
+		memoryUsage = data.map((dataPoint) => {
+			return {
+				x: new Date(dataPoint.timestamp),
+				percentage: Number(dataPoint.response.response.data.memory.usedMemPercentage),
+				mb: Number(dataPoint.response.response.data.memory.usedMemMb)
+			}
+		})
+
+		vramUsage = data.map((dataPoint) => {
+			let vramTotal = dataPoint.response.response.data.gpu.memory.total.split(" ")[0]
+            let vramFree = dataPoint.response.response.data.gpu.memory.free.split(" ")[0]
+            let vramUsed = vramTotal - vramFree;
+            let vramUsedPercentage = ((vramUsed / vramTotal) * 100).toFixed(2);
+
+			return {
+				x: new Date(dataPoint.timestamp),
+                percentage: Number(vramUsedPercentage),
+                mb: Number((1.049 * vramUsed).toFixed(2))
+			}
+		})
+
+        systemDriveUsage = data.map((dataPoint) => {
+            return {
+                x: new Date(dataPoint.timestamp),
+                y: Number(dataPoint.response.response.data.storage.systemDrive.usedGb)
+            }
+        })
+
+        dataDriveUsage = data.map((dataPoint) => {
+            return {
+                x: new Date(dataPoint.timestamp),
+                y: Number(dataPoint.response.response.data.storage.dataDrive.usedGb)
+            }
+        })
+
+        netIn = data.map((dataPoint) => {
+            return {
+                x: new Date(dataPoint.timestamp),
+                y: Number(dataPoint.response.response.data.misc.netstat.inout.inputMb)
+            }
+        })
+
+        netOut = data.map((dataPoint) => {
+            return {
+                x: new Date(dataPoint.timestamp),
+                y: Number(dataPoint.response.response.data.misc.netstat.inout.outputMb)
+            }
+        })
+
+        // Create charts
+        if (!updateCharts) {
+	        tempChart = new Chart(document.getElementById("tempChart"), {
+		        type: 'line',
+		        data: {
+			        datasets: [{
+				        cubicInterpolationMode: 'monotone',
+				        backgroundColor: '#FFB1C1',
+				        borderColor: '#FF6384',
+				        borderWidth: 1,
+				        radius: 0,
+				        label: "CPU Temperature (°C)",
+				        data: cpuTemp
+			        },
+				        {
+					        cubicInterpolationMode: 'monotone',
+					        backgroundColor: '#C1B1FF',
+					        borderColor: '#8463FF',
+					        borderWidth: 1,
+					        radius: 0,
+					        label: "GPU Temperature (°C)",
+					        data: gpuTemp
+				        }]
+		        },
+		        options: {
+			        interaction: {
+				        intersect: false,
+				        mode: 'index'
+			        },
+			        scales: {
+				        x: {
+					        type: "time",
+					        time: {
+						        unit: "day"
+					        },
+					        min: new Date(cpuTemp[0].x),
+					        max: new Date(cpuTemp[cpuTemp.length - 1].x),
+				        },
+				        y: {
+					        suggestedMin: 15,
+					        suggestedMax: 60
+				        }
+			        }
+		        }
+	        })
+	        usageChart = new Chart(document.getElementById("usageChart"), {
+		        type: 'line',
+		        data: {
+			        datasets: [{
+				        cubicInterpolationMode: 'monotone',
+				        backgroundColor: '#FFB1C1',
+				        borderColor: '#FF6384',
+				        borderWidth: 1,
+				        radius: 0,
+				        label: "CPU Usage (%)",
+				        data: cpuUsage
+			        },
+				        {
+					        cubicInterpolationMode: 'monotone',
+					        backgroundColor: '#C1B1FF',
+					        borderColor: '#8463FF',
+					        borderWidth: 1,
+					        radius: 0,
+					        label: "GPU Usage (%)",
+					        data: gpuUsage
+				        }]
+		        },
+		        options: {
+			        interaction: {
+				        intersect: false,
+				        mode: 'index'
+			        },
+			        scales: {
+				        x: {
+					        type: "time",
+					        time: {
+						        unit: "day"
+					        },
+					        min: new Date(cpuUsage[0].x),
+					        max: new Date(cpuUsage[cpuUsage.length - 1].x),
+				        },
+				        y: {
+					        min: 0,
+					        max: 100
+				        }
+			        }
+		        }
+	        })
+	        memoryChart = new Chart(document.getElementById("memoryChart"), {
+		        type: 'line',
+		        data: {
+			        datasets: [{
+				        cubicInterpolationMode: 'monotone',
+				        backgroundColor: '#FFB1C122',
+				        borderColor: '#FF6384',
+				        borderWidth: 1,
+				        radius: 0,
+				        label: "Memory Usage (%)",
+				        yAxisID: "percentage",
+				        data: memoryUsage,
+				        fill: true,
+				        parsing: {
+					        yAxisKey: 'percentage'
+				        }
+			        }, {
+				        cubicInterpolationMode: 'monotone',
+				        backgroundColor: '#FF85A5',
+				        borderColor: '#FF5985',
+				        borderWidth: 1,
+				        radius: 0,
+				        label: "Memory Usage (MB)",
+				        yAxisID: "mb",
+				        data: memoryUsage,
+				        parsing: {
+					        yAxisKey: 'mb'
+				        }
+			        }, {
+				        cubicInterpolationMode: 'monotone',
+				        backgroundColor: '#85A5FF22',
+				        borderColor: '#5985FF',
+				        borderWidth: 1,
+				        radius: 0,
+				        label: "VRAM Usage (%)",
+				        yAxisID: "percentage",
+				        data: vramUsage,
+				        fill: true,
+				        parsing: {
+					        yAxisKey: 'percentage'
+				        }
+			        }, {
+				        cubicInterpolationMode: 'monotone',
+				        backgroundColor: '#C1B1FF',
+				        borderColor: '#8463FF',
+				        borderWidth: 1,
+				        radius: 0,
+				        label: "VRAM Usage (MB)",
+				        yAxisID: "mb",
+				        data: vramUsage,
+				        parsing: {
+					        yAxisKey: 'mb'
+				        }
+			        }]
+		        },
+		        options: {
+			        interaction: {
+				        intersect: false,
+				        mode: 'index'
+			        },
+			        scales: {
+				        x: {
+					        type: "time",
+					        time: {
+						        unit: "day"
+					        },
+					        min: new Date(memoryUsage[0].x),
+					        max: new Date(memoryUsage[memoryUsage.length - 1].x),
+				        },
+				        percentage:	{
+					        type: "linear",
+					        position: "right",
+					        min: 0,
+					        max: 100
+				        },
+				        mb: {
+					        type: "linear",
+					        position: "left",
+					        min: 0,
+					        max: 15856.88
+				        }
+
+			        }
+		        }
+	        })
+	        storageChart = new Chart(document.getElementById("storageChart"), {
+		        type: 'line',
+		        data: {
+			        datasets: [{
+				        cubicInterpolationMode: 'monotone',
+				        backgroundColor: '#FFB1C1',
+				        borderColor: '#FF6384',
+				        borderWidth: 1,
+				        yAxisID: "systemDrive",
+				        radius: 0,
+				        label: "System drive capacity (GB)",
+				        data: systemDriveUsage
+			        },
+				        {
+					        cubicInterpolationMode: 'monotone',
+					        backgroundColor: '#C1B1FF',
+					        borderColor: '#8463FF',
+					        borderWidth: 1,
+					        yAxisID: "dataDrive",
+					        radius: 0,
+					        label: "Data drive capacity (GB)",
+					        data: dataDriveUsage
+				        }]
+		        },
+		        options: {
+			        interaction: {
+				        intersect: false,
+				        mode: 'index'
+			        },
+			        scales: {
+				        x: {
+					        type: "time",
+					        time: {
+						        unit: "day"
+					        },
+					        min: new Date(systemDriveUsage[0].x),
+					        max: new Date(systemDriveUsage[systemDriveUsage.length - 1].x),
+				        },
+				        systemDrive: {
+					        max: systemDriveCapacity,
+					        min: 0,
+					        type: "linear",
+					        position: "right",
+				        },
+				        dataDrive: {
+					        max: dataDriveCapacity,
+					        min: 0,
+					        type: "linear",
+					        position: "left",
+				        }
+			        }
+		        }
+	        })
+	        netChart = new Chart(document.getElementById("netChart"), {
+		        type: 'line',
+		        data: {
+			        datasets: [{
+				        cubicInterpolationMode: 'monotone',
+				        backgroundColor: '#FFB1C1',
+				        borderColor: '#FF6384',
+				        borderWidth: 1,
+				        radius: 0,
+				        label: "Inbound (Mb/s)",
+				        data: netIn
+			        },
+				        {
+					        cubicInterpolationMode: 'monotone',
+					        backgroundColor: '#C1B1FF',
+					        borderColor: '#8463FF',
+					        borderWidth: 1,
+					        radius: 0,
+					        label: "Outbound (Mb/s)",
+					        data: netOut
+				        }]
+		        },
+		        options: {
+			        interaction: {
+				        intersect: false,
+				        mode: 'index'
+			        },
+			        scales: {
+				        x: {
+					        type: "time",
+					        time: {
+						        unit: "day"
+					        },
+					        min: new Date(netIn[0].x),
+					        max: new Date(netIn[netIn.length - 1].x),
+				        }
+			        }
+		        }
+	        })
+        } else {
+	        tempChart.data.datasets[0].data = cpuTemp
+	        tempChart.data.datasets[1].data = gpuTemp
+			tempChart.options.scales.x.min = new Date(cpuTemp[0].x)
+			tempChart.options.scales.x.max = new Date(cpuTemp[cpuTemp.length - 1].x)
+            tempChart.update()
+
+            usageChart.data.datasets[0].data = cpuUsage
+            usageChart.data.datasets[1].data = gpuUsage
+			usageChart.options.scales.x.min = new Date(cpuUsage[0].x)
+			usageChart.options.scales.x.max = new Date(cpuUsage[cpuUsage.length - 1].x)
+            usageChart.update()
+
+            memoryChart.data.datasets[0].data = memoryUsage
+	        memoryChart.data.datasets[1].data = memoryUsage
+			memoryChart.options.scales.x.min = new Date(memoryUsage[0].x)
+			memoryChart.options.scales.x.max = new Date(memoryUsage[memoryUsage.length - 1].x)
+	        memoryChart.data.datasets[2].data = vramUsage
+	        memoryChart.data.datasets[3].data = vramUsage
+	        memoryChart.update()
+
+            storageChart.data.datasets[0].data = systemDriveUsage
+            storageChart.data.datasets[1].data = dataDriveUsage
+			storageChart.options.scales.x.min = new Date(systemDriveUsage[0].x)
+			storageChart.options.scales.x.max = new Date(systemDriveUsage[systemDriveUsage.length - 1].x)
+            storageChart.options.scales.systemDrive.max = systemDriveCapacity
+            storageChart.options.scales.dataDrive.max = dataDriveCapacity
+            storageChart.update()
+
+            netChart.data.datasets[0].data = netIn
+			netChart.options.scales.x.min = new Date(netIn[0].x)
+			netChart.options.scales.x.max = new Date(netIn[netIn.length - 1].x)
+            netChart.data.datasets[1].data = netOut
+            netChart.update()
+        }
+    }
+	renderGraphs()
+</script>
+<%-include("./common/bottom.ejs")%>
