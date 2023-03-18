@@ -125,7 +125,8 @@
             fetch("https://ems-api.litdevs.org/v1/pm2/track/<%=app.name%>", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${getCookie("ems-token")}`
                 },
                 body: JSON.stringify({
                     url: url,
