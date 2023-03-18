@@ -49,6 +49,10 @@
                         Url to track:<br>
                         <input type="text" name="trackingUrl" placeholder="https://vukkybox.com" class="input-box">
                     </label>
+                    <label>
+                        Host header value:<br>
+                        <input type="text" name="trackingHost" placeholder="vukkybox.com" class="input-box">
+                    </label>
                     <input type="submit" value="Start tracking" class="form-btn-green">
                 </form>
             <% } %>
@@ -124,7 +128,8 @@
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    url: url
+                    url: url,
+                    host: document.querySelector("input[name='trackingHost']").value
                 })
             }).then(res => res.json()).then(res => {
                 if (res.error) {
