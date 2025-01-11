@@ -16,7 +16,7 @@
                 <label for="cpuLoad">CPU load</label>
                 <p id="cpuLoad">1m: 0&nbsp;&nbsp;&nbsp;5m: 0&nbsp;&nbsp;&nbsp;15m: 0</p>
             </div>
-            <div class="vitalCard">
+            <!--<div class="vitalCard">
                 <p class="font-bold">GPU - <span id="gpuName">NVIDIA GeForce GTX 1050</span></p>
                 <label for="gpuTempMeter">GPU Temperature</label><br>
                 <meter id="gpuTempMeter" high="60" value="0" max="100"></meter>
@@ -29,7 +29,7 @@
                 <span id="vramUsageValue">0%</span><br>
                 <span id="gpuCoreClockValue">Core clock: 0 MHz</span><br>
                 <span id="gpuMemoryClockValue">Memory clock: 0 MHz</span><br>
-            </div>
+            </div>-->
             <div class="vitalCard">
                 <p class="font-bold">Memory</p>
                 <label for="memoryMeter">Memory usage</label><br>
@@ -129,7 +129,7 @@
 			/**
              * GPU
              */
-	     		if (res.response.data?.gpu?.temp) {
+	     		/*if (res.response.data?.gpu?.temp) {
 				document.querySelector("#gpuTempMeter").value = res.response.data.gpu.temp.split(" ")[0];
 				document.querySelector("#gpuTempValue").innerText = `${res.response.data.gpu.temp.split(" ")[0]}ºC`;
 				document.querySelector("#gpuUsageMeter").value = res.response.data.gpu.utilization.gpu_util.split(" ")[0];
@@ -142,7 +142,7 @@
 				document.querySelector("#vramUsageValue").innerText = `${vramUsedPercentage}% (${vramUsed}MB/${vramTotal}MB)`;
 				document.querySelector("#gpuCoreClockValue").innerText = `Core clock: ${res.response.data.gpu.coreClock}`;
 				document.querySelector("#gpuMemoryClockValue").innerText = `Memory clock: ${res.response.data.gpu.memoryClock}`;
-			}
+			}*/
 			renderGraphs();
 		}).catch(err => {
 			console.log(err);
@@ -158,7 +158,7 @@
 
     updateVitalDisplay();
     setInterval(updateVitalDisplay, 5000);
-
+/*
 	async function renderGraphs() {
 		let res = await fetch('https://uptime.litdevs.org/vitals');
 		let data = await res.json();
@@ -566,5 +566,6 @@
         }
     }
 	renderGraphs()
+*/
 </script>
 <%-include("./common/bottom.ejs")%>
