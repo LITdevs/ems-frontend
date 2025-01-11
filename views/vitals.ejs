@@ -48,8 +48,8 @@
             <div class="vitalCard">
                 <p class="font-bold">Network</p>
                 <p id="netInOut">In: 0Mb/s Out: 0Mb/s</p>
-                <p id="netStatsIn">Input bytes: 0</p>
-                <p id="netStatsOut">Output bytes: 0</p>
+                <!--<p id="netStatsIn">Input bytes: 0</p>
+                <p id="netStatsOut">Output bytes: 0</p>-->
             </div>
             <div class="vitalCard">
                 <p class="font-bold">Misc</p>
@@ -123,8 +123,8 @@
 			document.querySelector("#hostname").innerText = `Hostname: ${res.response.data.misc.hostname}`;
 			document.querySelector("#os").innerText = `OS: ${res.response.data.misc.oos} ${res.response.data.misc.platform} ${res.response.data.misc.arch}`;
 			document.querySelector("#netInOut").innerText = `In: ${res.response.data.misc.netstat.inout.inputMb}Mb/s Out: ${res.response.data.misc.netstat.inout.outputMb}Mb/s`;
-			document.querySelector("#netStatsIn").innerText = `Input bytes: ${res.response.data.misc.netstat.stats.inputBytes}`;
-			document.querySelector("#netStatsOut").innerText = `Output bytes: ${res.response.data.misc.netstat.stats.outputBytes}`;
+			//document.querySelector("#netStatsIn").innerText = `Input megabits: ${res.response.data.misc.netstat.inout.inputMb}`;
+			//document.querySelector("#netStatsOut").innerText = `Output megabits: ${res.response.data.misc.netstat.inout.outputMb}`;
 			document.querySelector("#openFiles").innerText = `Open files: ${res.response.data.misc.openFiles}`;
 			/**
              * GPU
@@ -143,9 +143,9 @@
 				document.querySelector("#gpuCoreClockValue").innerText = `Core clock: ${res.response.data.gpu.coreClock}`;
 				document.querySelector("#gpuMemoryClockValue").innerText = `Memory clock: ${res.response.data.gpu.memoryClock}`;
 			}*/
-			renderGraphs();
+			//renderGraphs();
 		}).catch(err => {
-			console.log(err);
+			console.error(err);
 			document.querySelector('div[class="text-center"]').innerHTML = "Error: " + err;
         });
     }
